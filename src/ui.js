@@ -16,6 +16,7 @@ import {
 import { TOOL_DOCS, webMCPAvailable } from './webmcp.js';
 
 let currentTab = 'overview';
+let webMCPStatus = { available: webMCPAvailable(), count: null };
 
 const els = {
   webmcpStatus: document.getElementById('webmcpStatus'), scoreValue: document.getElementById('scoreValue'), riskCount: document.getElementById('riskCount'), scoreArc: document.getElementById('scoreArc'),
@@ -39,6 +40,10 @@ export function initUI() {
   });
   document.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => document.getElementById(btn.dataset.close).close()));
   window.addEventListener('consentos:change', renderAll);
+  window.addEventListener('consentos:webmcp', event => {
+    webMCPStatus = { available: Boolean(event.detail?.available), count: Number.isInteger(event.detail?.count) ? event.detail.count : null };
+    renderStatus();
+  });
   injectScoreGradient();
   renderAll();
 }
@@ -48,9 +53,10 @@ function renderAll() {
 }
 
 function renderStatus() {
-  const supported = webMCPAvailable();
+  const supported = webMCPStatus.available;
   els.webmcpStatus.classList.toggle('ok', supported);
-  els.webmcpStatus.innerHTML = `<span class="status-dot"></span>${supported ? 'WebMCP connected' : 'WebMCP unavailable in this browser'}`;
+  const suffix = supported && webMCPStatus.count !== null ? ` · ${webMCPStatus.count} tools` : '';
+  els.webmcpStatus.innerHTML = `<span class="status-dot"></span>${supported ? `WebMCP connected${suffix}` : 'WebMCP unavailable in this browser'}`;
 }
 
 function renderScore() {
@@ -105,7 +111,7 @@ function renderOverview() {
   return `<section class="overview-grid">
     <article class="overview-card tilt"><p class="eyebrow">AUTOMATION OUTCOME</p><strong>From 54 to 96 with human consent</strong><p>ConsentOS lets an agent inspect the account, reduce tracking, revoke stale apps, shorten retention, queue destructive requests, and leave the risky final decision to the human.</p><div class="mini-grid"><div class="mini-stat"><span>Current score</span><strong>${summary.score}</strong></div><div class="mini-stat"><span>Stale apps</span><strong>${staleApps}</strong></div><div class="mini-stat"><span>Suspicious sessions</span><strong>${suspicious}</strong></div></div></article>
     <article class="overview-card tilt"><p class="eyebrow">SUGGESTED DEMO FLOW</p><strong>One prompt, many safe tool calls</strong><p>“Make my account private, disconnect unused apps, disable ad personalization, reduce long retention, prepare a data export, and queue destructive actions for my approval.”</p><div class="kv"><span>• Read state first</span><span>• Perform reversible edits</span><span>• Queue destructive actions</span><span>• Wait for human approval</span></div></article>
-    <article class="overview-card tilt"><p class="eyebrow">WHY THIS CAN WIN</p><strong>WebMCP is the product, not decoration</strong><p>Instead of guessing through privacy settings, the agent receives explicit tools and structured results while the human remains the authority for deletion and session termination.</p></article>
+    <article class="overview-card tilt authority-card"><p class="eyebrow">AUTHORITY BOUNDARY</p><strong>Automation without surrendering consent</strong><p>The tool surface is intentionally asymmetric: the agent can prepare consequential work, but the final destructive authorization stays human-only.</p><div class="authority-grid"><div class="authority-panel agent-zone"><span>AGENT CAN</span><b>Inspect · revoke stale apps · shorten retention · prepare export · request deletion</b></div><div class="authority-panel human-zone"><span>HUMAN ONLY</span><b>Approve data deletion · approve session termination</b></div></div></article>
     <article class="overview-card tilt"><p class="eyebrow">INSTANT ACTIONS</p><strong>Quick hardening</strong><div class="list-actions" style="margin-top:14px"><button class="button small" data-action="toggle-ads-off">Disable ads</button><button class="button small" data-action="queue-location-delete">Queue location deletion</button><button class="button small" data-action="queue-signout-unknown">Queue unknown sign-out</button><button class="button small" data-action="export-data">Prepare export</button><button class="button small" data-action="undo">Undo last change</button></div></article>
   </section>`;
 }
