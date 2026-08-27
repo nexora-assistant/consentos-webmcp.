@@ -94,7 +94,7 @@ function renderExposure() {
     ['Suspicious sessions', suspicious, suspicious ? 'A session from an unfamiliar location is still active.' : 'All active sessions look familiar.', suspicious ? 'high' : 'low'],
     ['Export readiness', state.exportRequestedAt ? 'READY' : 'IDLE', state.exportRequestedAt ? 'A data export request has already been prepared.' : 'No export request has been prepared yet.', state.exportRequestedAt ? 'low' : 'med'],
     ['Human control', approvals ? 'ACTIVE' : 'STANDBY', 'ConsentOS keeps risky actions behind explicit approval.', 'low'],
-    ['Score momentum', `${summary.score}/96`, 'The score updates deterministically after every state change.', summary.score >= 90 ? 'low' : summary.score >= 75 ? 'med' : 'high'],
+    ['Score momentum', `${summary.score}/100`, 'The score updates deterministically after every state change.', summary.score >= 90 ? 'low' : summary.score >= 75 ? 'med' : 'high'],
   ];
   els.exposureMap.innerHTML = cards.map(([title,value,desc,tone]) => `<article class="exposure-card tilt risk-glow-${tone}"><h3>${escapeHtml(title)}</h3><strong>${escapeHtml(String(value))}</strong><p>${escapeHtml(desc)}</p></article>`).join('');
 }
@@ -137,7 +137,7 @@ function renderAudit() { return state.audit.map(item => `<article class="audit-i
 function renderActivity() { els.activityList.innerHTML = state.activity.map(item => `<article class="activity-item"><div class="activity-meta"><span class="pill-source ${item.source}">${item.source}</span><span>${formatTime(item.at)}</span></div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.detail)}</p></article>`).join(''); }
 function renderApprovals() { const count = state.pendingApprovals.length; els.approvalBadge.textContent = count; els.approvalBadge.classList.toggle('hidden', !count); els.approvalSheet.innerHTML = count ? state.pendingApprovals.map(approvalCard).join('') : '<div class="approval-empty">No actions awaiting human approval.</div>'; }
 function renderTools() { els.toolsList.innerHTML = TOOL_DOCS.map(tool => `<article class="tool-item"><header><code>${escapeHtml(tool.name)}</code><span class="risk-pill ${tool.readOnly ? 'low' : 'medium'}">${tool.readOnly ? 'read only' : 'mutation'}</span></header><p>${escapeHtml(tool.description)}</p></article>`).join(''); }
-function renderScoreFactors() { const details = scoreState(); els.scoreFactors.innerHTML = details.factors.map(f => `<article class="score-factor"><strong>${escapeHtml(f.label)}</strong><p>${f.impact} points</p></article>`).join('') + `<article class="score-factor"><strong>Final privacy score</strong><p>${details.score}/96</p></article>`; }
+function renderScoreFactors() { const details = scoreState(); els.scoreFactors.innerHTML = details.factors.map(f => `<article class="score-factor"><strong>${escapeHtml(f.label)}</strong><p>${f.impact} points</p></article>`).join('') + `<article class="score-factor"><strong>Final privacy score</strong><p>${details.score}/100</p></article>`; }
 
 function bindWorkspaceActions() {
   document.querySelectorAll('[data-action]').forEach(el => {
